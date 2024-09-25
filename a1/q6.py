@@ -29,7 +29,7 @@ MAZE = [
 
 def parse_coordinates(coord_str):
     """ Helper function to parse a coordinate string like 'x,y' """
-    x, y = map(int, coord_str.split(','))
+    y, x = map(int, coord_str.split(','))
     return (x, y)
 
 
@@ -63,19 +63,31 @@ def check_valid_move(node):
 
     OPEN_SPACE = 0
 
-    return x <= MAX_X and x >=0 and y <= MAX_Y and y >=0 and MAZE[x][y] == OPEN_SPACE;
+    return x <= MAX_X and x >=0 and y <= MAX_Y and y >=0 and MAZE[x][y] == OPEN_SPACE
     
+def add_path(path):
+    for node in path:
+        x,y = node
+
+        MAZE[x][y] = '*'
+
+def print_maze():
+    for x in range (24, -1, -1):
+        for y in range (0, 25):
+            print(f'{MAZE[x][y]} ', end="")
+        
+        print()
 
 def bfs(start, goal):
     visited = set()
-    queue = [(0, start, [start])]
+    queue = [(0, start, [])]
 
     while queue:
 
         cost, cur_node, path = queue.pop(0)
 
         if cur_node == goal:
-            print(f"\nPath found: {path} with total cost: {cost}")
+            # path = path + [cur_node]
             return cost, path
         
         if cur_node not in visited:
@@ -103,23 +115,43 @@ def bfs(start, goal):
     print("Goal not found")
 
 def dfs(start, goal):
-    print()
+    visited = set()
+    queue = [(0, start, [])]
+
+    while queue:
+
+        cost, cur_node, path = queue.pop()
+
+        if cur_node == goal:
+            return cost, path
+        
+        if cur_node not in visited:
+            visited.add(cur_node)
+
+            cur_x, cur_y = cur_node
+
+            #Add up
+            if (check_valid_move((cur_x, cur_y + 1))):
+                queue.append((cost+1, (cur_x, cur_y + 1), path + [cur_node]))
+
+            #Add down
+            if (check_valid_move((cur_x, cur_y - 1))):
+                queue.append((cost+1, (cur_x, cur_y - 1), path + [cur_node]))
+
+            #Add left
+            if (check_valid_move((cur_x - 1, cur_y))):
+                queue.append((cost+1, (cur_x - 1, cur_y), path + [cur_node]))
+
+
+            #add right
+            if (check_valid_move((cur_x + 1, cur_y))):
+                queue.append((cost+1, (cur_x + 1, cur_y), path + [cur_node]))
+
+    print("Goal not found")
+
 
 def a_star(start, goal):
     print()
-
-def add_path(path):
-    for node in path:
-        x,y = node
-
-        MAZE[x][y] = '*'
-
-def print_maze():
-    for x in range (0,25):
-        for y in range (0,25):
-            print(f'{MAZE[x][y]} ', end="")
-        
-        print()
 
 
 def main():
@@ -139,23 +171,25 @@ def main():
 
     if check_valid_inputs(start, goal):
         if args.bfs:
-            print("Starting BFS search...")
+            print("Starting BFS search...\n")
             cost, path = bfs(start, goal)
 
         elif args.dfs:
-            print("Starting DFS search...")
-            dfs(start, goal)
+            print("Starting DFS search...\n")
+            cost, path = dfs(start, goal)
 
         elif args.astar:
-            print("Starting A Star search...")
-            a_star(start, goal)
+            print("Starting A Star search...\n")
+            cost, path = a_star(start, goal)
             
         else:
             print("Please select a search algorithm with -b (BFS), -d (DFS), or -a (A*).")
 
+    print(f"Path found: {path}")
+    print(f"Cost: {cost}")
+    print()
     add_path(path)
     print_maze()
-
 
 if __name__ == "__main__":
     main()
