@@ -32,12 +32,13 @@ def parse_coordinates(coord_str):
     x, y = map(int, coord_str.split(','))
     return (x, y)
 
+
+MAX_X = 24
+MAX_Y = 24
+
 def check_valid_inputs(start, goal):
     start_x, start_y = start
     goal_x, goal_y = goal
-
-    MAX_X = 24
-    MAX_Y = 24
 
     if start_x > MAX_X or start_y > MAX_Y:
         print("Starting coordinates out of bounds! Exiting...")
@@ -56,16 +57,70 @@ def check_valid_inputs(start, goal):
         return False
     
     return True
+
+def check_valid_move(node):
+    x,y = node
+
+    OPEN_SPACE = 0
+
+    return x <= MAX_X and x >=0 and y <= MAX_Y and y >=0 and MAZE[x][y] == OPEN_SPACE;
     
 
 def bfs(start, goal):
-    print()
+    visited = set()
+    queue = [(0, start, [start])]
+
+    while queue:
+
+        cost, cur_node, path = queue.pop(0)
+
+        if cur_node == goal:
+            print(f"\nPath found: {path} with total cost: {cost}")
+            return cost, path
+        
+        if cur_node not in visited:
+            visited.add(cur_node)
+
+            cur_x, cur_y = cur_node
+
+            #Add up
+            if (check_valid_move((cur_x, cur_y + 1))):
+                queue.append((cost+1, (cur_x, cur_y + 1), path + [cur_node]))
+
+            #Add down
+            if (check_valid_move((cur_x, cur_y - 1))):
+                queue.append((cost+1, (cur_x, cur_y - 1), path + [cur_node]))
+
+            #Add left
+            if (check_valid_move((cur_x - 1, cur_y))):
+                queue.append((cost+1, (cur_x - 1, cur_y), path + [cur_node]))
+
+
+            #add right
+            if (check_valid_move((cur_x + 1, cur_y))):
+                queue.append((cost+1, (cur_x + 1, cur_y), path + [cur_node]))
+
+    print("Goal not found")
 
 def dfs(start, goal):
     print()
 
 def a_star(start, goal):
     print()
+
+def add_path(path):
+    for node in path:
+        x,y = node
+
+        MAZE[x][y] = '*'
+
+def print_maze():
+    for x in range (0,25):
+        for y in range (0,25):
+            print(f'{MAZE[x][y]} ', end="")
+        
+        print()
+
 
 def main():
     parser = argparse.ArgumentParser(description="Search Algorithm Runner")
@@ -80,11 +135,12 @@ def main():
 
     start = args.start
     goal = args.goal
+    path = []
 
     if check_valid_inputs(start, goal):
         if args.bfs:
             print("Starting BFS search...")
-            bfs(start, goal)
+            cost, path = bfs(start, goal)
 
         elif args.dfs:
             print("Starting DFS search...")
@@ -96,6 +152,10 @@ def main():
             
         else:
             print("Please select a search algorithm with -b (BFS), -d (DFS), or -a (A*).")
+
+    add_path(path)
+    print_maze()
+
 
 if __name__ == "__main__":
     main()
