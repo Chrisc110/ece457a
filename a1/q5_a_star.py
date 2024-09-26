@@ -2,21 +2,21 @@ import heapq
 
 def a_star_search(graph, start, goal, heuristics):
     # Priority queue to store (total_cost, g(n), node, path)
-    pq = [(heuristics[start], 0, start, [start])]
+    prio_queue = [(heuristics[start], 0, start, [start])]
     # Set to track visited nodes (closed set)
     visited = []
     
     # Print header
     iteration = 0  # Track iteration number
 
-    while pq:
+    while prio_queue:
 
-        print(f"Open: {[[current_node, f_cost] for f_cost, g_node, current_node, path in pq]}")
+        print(f"Open: {[[current_node, f_cost] for f_cost, g_node, current_node, path in prio_queue]}")
         print(f"Closed: {visited}")
         print()
 
         # Pop the node with the lowest total cost (f(n) = g(n) + h(n)) from the queue
-        (f_cost, g_cost, current_node, path) = heapq.heappop(pq)
+        (f_cost, g_cost, current_node, path) = heapq.heappop(prio_queue)
 
         # If we've reached the goal, return the total cost and the path
         if current_node == goal:
@@ -35,7 +35,7 @@ def a_star_search(graph, start, goal, heuristics):
                     # Calculate f(n) = g(n) + h(n)
                     new_f_cost = new_g_cost + heuristics[neighbor]
                     # Add the neighbor to the priority queue
-                    heapq.heappush(pq, (new_f_cost, new_g_cost, neighbor, path + [neighbor]))
+                    heapq.heappush(prio_queue, (new_f_cost, new_g_cost, neighbor, path + [neighbor]))
 
         iteration += 1  # Increment iteration count
 

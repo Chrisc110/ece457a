@@ -2,26 +2,18 @@ import heapq
 
 def uniform_cost_search(graph, start, goal):
     # Priority queue to store (cost, node, path)
-    pq = [(0, start, [start])]
+    prio_queue = [(0, start, [start])]
     # Set to track visited nodes (closed set)
     visited = []
-    
-    # Print header
-    # print(f"{'Iteration':<10} {'Open Queue (cost, node, path)':<40} {'Closed Queue (visited nodes)'}")
-
     iteration = 0  # Track iteration number
 
-    while pq:
-        # print(pq)
-        print(f"Open: {[[node, cost] for cost, node, path in pq]}")
+    while prio_queue:
+        print(f"Open: {[[node, cost] for cost, node, path in prio_queue]}")
         print(f"Closed: {visited}")
         print()
 
-        # Print the current open queue and closed set
-        # print(f"{iteration:<10} {[(c, n, p) for (c, n, p) in pq]:<40} {list(visited)}")
-
         # Pop the node with the lowest cost from the queue
-        (cost, current_node, path) = heapq.heappop(pq)
+        (cost, current_node, path) = heapq.heappop(prio_queue)
 
         # If we've reached the goal, return the cost and the path
         if current_node == goal:
@@ -36,7 +28,7 @@ def uniform_cost_search(graph, start, goal):
             for neighbor, travel_cost in graph[current_node]:
                 if neighbor not in visited:
                     # Add neighbor to the queue with the updated cost and path
-                    heapq.heappush(pq, (cost + travel_cost, neighbor, path + [neighbor]))
+                    heapq.heappush(prio_queue, (cost + travel_cost, neighbor, path + [neighbor]))
 
         iteration += 1  # Increment iteration count
 

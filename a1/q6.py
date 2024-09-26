@@ -37,6 +37,7 @@ def parse_coordinates(coord_str):
 MAX_X = 24
 MAX_Y = 24
 
+# Check start and goal coordinates for conflicts
 def check_valid_inputs(start, goal):
     start_x, start_y = start
     goal_x, goal_y = goal
@@ -59,6 +60,7 @@ def check_valid_inputs(start, goal):
     
     return True
 
+# Check if a move to a specific node if valid
 def check_valid_move(node):
     x,y = node
 
@@ -66,12 +68,14 @@ def check_valid_move(node):
 
     return x <= MAX_X and x >=0 and y <= MAX_Y and y >=0 and MAZE[y][x] == OPEN_SPACE
     
+# Convert a node in the path to a star in the array holding the maze
 def add_path(path):
     for node in path:
         x,y = node
 
         MAZE[y][x] = '*'
 
+# Print the maze in a human readable format
 def print_maze():
     for y in range (24, -1, -1):
         for x in range (0, 25):
@@ -79,6 +83,7 @@ def print_maze():
         
         print()
 
+# Implementation of BFS
 def bfs(start, goal):
     visited = set()
     queue = [(0, start, [])]
@@ -92,7 +97,7 @@ def bfs(start, goal):
         if cur_node == goal:
             path = path + [cur_node]
             cost = cost + 1
-            print(iteration)
+            print(f"Iterations: {iteration}")
             return cost, path
         
         if cur_node not in visited:
@@ -118,6 +123,7 @@ def bfs(start, goal):
 
     print("Goal not found")
 
+# Implementation of DFS
 def dfs(start, goal):
     visited = set()
     queue = [(0, start, [])]
@@ -131,7 +137,7 @@ def dfs(start, goal):
         if cur_node == goal:
             path = path + [cur_node]
             cost = cost + 1
-            print(iteration)
+            print(f"Iterations: {iteration}")
             return cost, path
         
         if cur_node not in visited:
@@ -145,16 +151,17 @@ def dfs(start, goal):
             if (check_valid_move((cur_x - 1, cur_y))):
                 queue.append((cost+1, (cur_x - 1, cur_y), path + [cur_node]))
 
-            if (check_valid_move((cur_x, cur_y + 1))):
-                queue.append((cost+1, (cur_x, cur_y + 1), path + [cur_node]))
-
             if (check_valid_move((cur_x, cur_y - 1))):
                 queue.append((cost+1, (cur_x, cur_y - 1), path + [cur_node]))
+
+            if (check_valid_move((cur_x, cur_y + 1))):
+                queue.append((cost+1, (cur_x, cur_y + 1), path + [cur_node]))
 
         iteration += 1
 
     print("Goal not found")
 
+# Implementation of a heuristics function for A* search
 def h(cur_node, goal):
     cur_x, cur_y = cur_node
     goal_x, goal_y = goal
@@ -162,7 +169,7 @@ def h(cur_node, goal):
     # Implementation of Manhattan distance
     return abs(goal_x - cur_x) + abs(goal_y - cur_y)
 
-
+# Implementation of A* search
 def a_star(start, goal):
     # Priority queue to store (total_cost, g(n), node, path)
     prio_queue = [(h(start, goal), 0, start, [start])]
@@ -179,7 +186,7 @@ def a_star(start, goal):
 
         # If we've reached the goal, return the total cost and the path
         if current_node == goal:
-            print(iteration)
+            print(f"Iterations: {iteration}")
             return g_cost + 1, path
 
         # If the node has not been visited, expand it
