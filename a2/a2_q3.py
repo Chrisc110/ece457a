@@ -1,6 +1,7 @@
 import time
 import random
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 # Dummy data for flows and distances (you need to replace these with actual data)
@@ -48,6 +49,8 @@ DISTANCE_MATRIX = [[0.0, 1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0, 5.0, 2.0, 3.0, 
 
 SOL_SIZE = 20
 MAX_ITERATIONS = 200
+PENALTY_WEIGHT = 0.25
+TABU_TENURE = 20
 MAX_NO_IMPROVEMENT = 10
 
 # Function to calculate cost based on flow and distance
@@ -60,8 +63,6 @@ def calculate_cost(permutation):
 
 # Tabu Search Algorithm
 def tabu_search():
-    TABU_TENURE = 20
-
     best_solution = list(range(SOL_SIZE))
     random.shuffle(best_solution)
     best_cost = calculate_cost(best_solution)
@@ -70,6 +71,7 @@ def tabu_search():
     current_cost = best_cost
 
     tabu_list = []
+    move_frequency = np.zeros((SOL_SIZE, SOL_SIZE))  # Frequency matrix to track how often swaps are used
 
     no_improvement = 0
 
@@ -83,9 +85,8 @@ def tabu_search():
                 neighbor = current_solution[:]
                 neighbor[i], neighbor[j] = neighbor[j], neighbor[i]
                 neighborhood.append(neighbor)
-                moves.append((i, j))  # Track the move (swap)
+                moves.append((i, j))
 
-        # Evaluate neighborhood and track which moves are tabu
         best_neighbor = None
         best_neighbor_cost = float('inf')
         best_move = None
@@ -93,43 +94,37 @@ def tabu_search():
         for idx, neighbor in enumerate(neighborhood):
             neighbor_cost = calculate_cost(neighbor)
             move = moves[idx]
- 
+
+            # Penalize frequently used moves
+            penalty = PENALTY_WEIGHT * move_frequency[move[0], move[1]]
+            neighbor_cost += penalty
+
             # Check if move is tabu
             if move in tabu_list:
-                # Apply aspiration criterion: allow if it improves the global best solution
                 if neighbor_cost < best_cost:
                     best_neighbor = neighbor
                     best_neighbor_cost = neighbor_cost
                     best_move = move
-                    break  # Immediate move due to aspiration criterion
+                    break
             else:
-                # If not tabu and better than current best in neighborhood, select it
                 if neighbor_cost < best_neighbor_cost:
                     best_neighbor = neighbor
                     best_neighbor_cost = neighbor_cost
                     best_move = move
 
-        # If no valid moves, stop the search
         if best_neighbor is None:
             break
 
-        # Update current solution and cost
         current_solution = best_neighbor
         current_cost = best_neighbor_cost
 
-        # Update global best solution if necessary
         if current_cost < best_cost:
             best_solution = current_solution[:]
             best_cost = current_cost
             no_improvement = 0
-        
+
         else:
             no_improvement += 1
-
-        # Update tabu list with the move
-        tabu_list.append(best_move)
-        if len(tabu_list) > TABU_TENURE:
-            tabu_list.pop(0)
 
         if no_improvement >= MAX_NO_IMPROVEMENT:
             current_solution = list(range(SOL_SIZE))
@@ -137,6 +132,15 @@ def tabu_search():
             current_cost = calculate_cost(current_solution)
             tabu_list.clear()  # Optionally clear tabu list
             no_improvement = 0  # Reset stagnation counter
+            move_frequency = np.zeros((SOL_SIZE, SOL_SIZE))
+
+        # Update tabu list with the move
+        tabu_list.append(best_move)
+        if len(tabu_list) > TABU_TENURE:
+            tabu_list.pop(0)
+
+        # Update move frequency
+        move_frequency[best_move[0], best_move[1]] += 1
 
     return (best_solution, best_cost)
 
