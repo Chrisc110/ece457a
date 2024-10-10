@@ -67,7 +67,7 @@ def tabu_search():
 
     tabu_list = []
 
-    TABU_TENURE = 20
+    TABU_TENURE = 10
     
     for iteration in range(MAX_ITERATIONS):
 
@@ -82,7 +82,6 @@ def tabu_search():
 
         # Filter out tabu solutions
         neighborhood = [sol for sol in neighborhood if sol not in tabu_list]
-        print(neighborhood)
 
         # If neighborhood is empty, break
         if not neighborhood:
@@ -108,6 +107,9 @@ def tabu_search():
         tabu_list.append(current_solution)
         while (len(tabu_list) > TABU_TENURE):
             tabu_list.pop(0)
+
+        if iteration % 20 == 0:
+            TABU_TENURE += 2
 
     return (best_solution, best_cost)
 
