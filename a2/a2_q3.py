@@ -3,8 +3,6 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 
-
-# Dummy data for flows and distances (you need to replace these with actual data)
 FLOW_MATRIX = [[0.0, 0.0, 5.0, 0.0, 5.0, 2.0, 10.0, 3.0, 1.0, 5.0, 5.0, 5.0, 0.0, 0.0, 5.0, 4.0, 4.0, 0.0, 0.0, 1.0],
                [0.0, 0.0, 3.0, 10.0, 5.0, 1.0, 5.0, 1.0, 2.0, 4.0, 2.0, 5.0, 0.0, 10.0, 10.0, 3.0, 0.0, 5.0, 10.0, 5.0],
                [5.0, 3.0, 0.0, 2.0, 0.0, 5.0, 2.0, 4.0, 4.0, 5.0, 0.0, 0.0, 0.0, 5.0, 1.0, 0.0, 0.0, 5.0, 0.0, 0.0],
@@ -61,7 +59,6 @@ def calculate_cost(permutation):
             cost += FLOW_MATRIX[permutation[i]][permutation[j]] * DISTANCE_MATRIX[i][j]
     return cost
 
-# Tabu Search Algorithm
 def tabu_search():
     best_solution = list(range(SOL_SIZE))
     random.shuffle(best_solution)
@@ -71,7 +68,7 @@ def tabu_search():
     current_cost = best_cost
 
     tabu_list = []
-    move_frequency = np.zeros((SOL_SIZE, SOL_SIZE))  # Frequency matrix to track how often swaps are used
+    move_frequency = np.zeros((SOL_SIZE, SOL_SIZE))  # Frequency matrix to track how often moves are used
 
     no_improvement = 0
 
@@ -79,7 +76,7 @@ def tabu_search():
         neighborhood = []
         moves = []
         
-        # Generate neighborhood by swapping elements
+        # Create neighborhood
         for i in range(SOL_SIZE):
             for j in range(i + 1, SOL_SIZE):
                 neighbor = current_solution[:]
@@ -95,11 +92,11 @@ def tabu_search():
             neighbor_cost = calculate_cost(neighbor)
             move = moves[idx]
 
-            # Penalize frequently used moves
+            # Add penalty to frequency visited moves
             penalty = PENALTY_WEIGHT * move_frequency[move[0], move[1]]
             neighbor_cost += penalty
 
-            # Check if move is tabu
+            # Check if move is in tabu list
             if move in tabu_list:
                 if neighbor_cost < best_cost:
                     best_neighbor = neighbor
@@ -144,17 +141,8 @@ def tabu_search():
 
     return (best_solution, best_cost)
 
-
-
-
-
-
-# Execute Tabu Search
+# Keep track of execution time
 start_time = time.time()
-
-# best_solution, best_cost = tabu_search()
-# print("Best solution:", best_solution)
-# print("Best cost:", best_cost)
 
 costs = []
 for i in range(20):
@@ -175,8 +163,6 @@ plt.ylabel('Cost')
 plt.xticks(iterations)  # Set x-axis ticks to increment by 1
 plt.grid(True)
 plt.show()
-
-
 
 end_time = time.time()
 exe_time = (end_time - start_time) * 1000
