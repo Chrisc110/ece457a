@@ -48,6 +48,7 @@ DISTANCE_MATRIX = [[0.0, 1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0, 5.0, 2.0, 3.0, 
 
 SOL_SIZE = 20
 MAX_ITERATIONS = 200
+MAX_NO_IMPROVEMENT = 10
 
 # Function to calculate cost based on flow and distance
 def calculate_cost(permutation):
@@ -59,19 +60,22 @@ def calculate_cost(permutation):
 
 # Tabu Search Algorithm
 def tabu_search():
+    TABU_TENURE = 20
+
     best_solution = list(range(SOL_SIZE))
-    best_cost = calculate_cost(best_solution)
     random.shuffle(best_solution)
+    best_cost = calculate_cost(best_solution)
+
     current_solution = best_solution[:]
     current_cost = best_cost
 
     tabu_list = []
 
-    TABU_TENURE = 20
-    
-    for iteration in range(MAX_ITERATIONS):
+    no_improvement = 0
 
+    for iteration in range(MAX_ITERATIONS):
         neighborhood = []
+        moves = []
         
         # Generate neighborhood by swapping elements
         for i in range(SOL_SIZE):
@@ -79,35 +83,60 @@ def tabu_search():
                 neighbor = current_solution[:]
                 neighbor[i], neighbor[j] = neighbor[j], neighbor[i]
                 neighborhood.append(neighbor)
+                moves.append((i, j))  # Track the move (swap)
 
-        # Filter out tabu solutions
-        neighborhood = [sol for sol in neighborhood if sol not in tabu_list]
-        print(neighborhood)
+        # Evaluate neighborhood and track which moves are tabu
+        best_neighbor = None
+        best_neighbor_cost = float('inf')
+        best_move = None
 
-        # If neighborhood is empty, break
-        if not neighborhood:
+        for idx, neighbor in enumerate(neighborhood):
+            neighbor_cost = calculate_cost(neighbor)
+            move = moves[idx]
+ 
+            # Check if move is tabu
+            if move in tabu_list:
+                # Apply aspiration criterion: allow if it improves the global best solution
+                if neighbor_cost < best_cost:
+                    best_neighbor = neighbor
+                    best_neighbor_cost = neighbor_cost
+                    best_move = move
+                    break  # Immediate move due to aspiration criterion
+            else:
+                # If not tabu and better than current best in neighborhood, select it
+                if neighbor_cost < best_neighbor_cost:
+                    best_neighbor = neighbor
+                    best_neighbor_cost = neighbor_cost
+                    best_move = move
+
+        # If no valid moves, stop the search
+        if best_neighbor is None:
             break
 
-        # Evaluate neighborhood
-        costs = [calculate_cost(neighbor) for neighbor in neighborhood]
-        best_neighbor_index = costs.index(min(costs))
-        best_neighbor = neighborhood[best_neighbor_index]
-        best_neighbor_cost = costs[best_neighbor_index]
+        # Update current solution and cost
+        current_solution = best_neighbor
+        current_cost = best_neighbor_cost
 
-        # Update current solution if found a better solution
-        if best_neighbor_cost < current_cost:
-            current_solution = best_neighbor
-            current_cost = best_neighbor_cost
-
-        # Update best solution if found a new best
+        # Update global best solution if necessary
         if current_cost < best_cost:
-            best_solution = current_solution
+            best_solution = current_solution[:]
             best_cost = current_cost
+            no_improvement = 0
+        
+        else:
+            no_improvement += 1
 
-        # Update tabu list
-        tabu_list.append(current_solution)
-        while (len(tabu_list) > TABU_TENURE):
+        # Update tabu list with the move
+        tabu_list.append(best_move)
+        if len(tabu_list) > TABU_TENURE:
             tabu_list.pop(0)
+
+        if no_improvement >= MAX_NO_IMPROVEMENT:
+            current_solution = list(range(SOL_SIZE))
+            random.shuffle(current_solution)
+            current_cost = calculate_cost(current_solution)
+            tabu_list.clear()  # Optionally clear tabu list
+            no_improvement = 0  # Reset stagnation counter
 
     return (best_solution, best_cost)
 
