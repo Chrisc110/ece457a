@@ -7,7 +7,7 @@ def sphere_function(x):
 # Parameters
 n = 10  # Dimension of the problem
 x_min, x_max = -5.12, 5.12  # Boundaries of the search space
-sigma = 1.0  # Initial mutation variance
+sigma = 1.0/1200.0  # Initial mutation variance
 c = 0.817  # Control parameter for adaptive mutation
 G = 20  # Window of generations for tracking success
 max_generations = 1000  # Termination after a set number of generations
