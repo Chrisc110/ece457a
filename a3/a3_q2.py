@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Define the sphere function
 def sphere_function(x):
@@ -11,45 +12,58 @@ sigma = 1.0/1200.0  # Initial mutation variance
 c = 0.817  # Control parameter for adaptive mutation
 G = 20  # Window of generations for tracking success
 max_generations = 500  # Termination after a set number of generations
+num_simulations = 50 # How many simulations to run
 
 # Initialize
 x0 = np.random.uniform(x_min, x_max, n)
 best_value = sphere_function(x0)
 successful_mutations = 0
-cost = []
+cost = [[] for x in  range(max_generations)]
 
 # Evolution Strategy Loop
+for simulation in range(num_simulations):
+    for generation in range(max_generations):
+        # Generate a random mutation vector r from N(0, sigma^2)
+        r = np.random.normal(0, sigma, n)
+        x1 = x0 + r
+
+        # Ensure x1 is within bounds
+        x1 = np.clip(x1, x_min, x_max)
+
+        # Evaluate the new candidate solution
+        f_x1 = sphere_function(x1)
+        
+        # Selection: If the new solution is better, accept it
+        if f_x1 < best_value:
+            x0 = x1
+            best_value = f_x1
+            successful_mutations += 1
+        
+        # Adjust mutation variance sigma based on success rate over the past G generations
+        if (generation + 1) % G == 0:
+            phi = successful_mutations / G
+            if phi < 1 / 5:
+                sigma *= c ** 2
+            elif phi > 1 / 5:
+                sigma /= c ** 2
+            # Reset the success count
+            successful_mutations = 0
+
+        cost[generation].append(best_value)
+
+avg_cost = []
 for generation in range(max_generations):
-    # Generate a random mutation vector r from N(0, sigma^2)
-    r = np.random.normal(0, sigma, n)
-    x1 = x0 + r
+    avg_cost.append(sum(cost[generation])/len(cost[generation]))
 
-    # Ensure x1 is within bounds
-    x1 = np.clip(x1, x_min, x_max)
+generations = list(range(len(avg_cost)))
+plt.plot(generations, avg_cost)
+plt.xlabel('Generation number')
+plt.ylabel('Average Cost')
+plt.title("Average Cost vs Generation Number over 50 iterations")
+plt.show()
 
-    # Evaluate the new candidate solution
-    f_x1 = sphere_function(x1)
-    
-    # Selection: If the new solution is better, accept it
-    if f_x1 < best_value:
-        x0 = x1
-        best_value = f_x1
-        successful_mutations += 1
-    
-    # Adjust mutation variance sigma based on success rate over the past G generations
-    if (generation + 1) % G == 0:
-        phi = successful_mutations / G
-        if phi < 1 / 5:
-            sigma *= c ** 2
-        elif phi > 1 / 5:
-            sigma /= c ** 2
-        # Reset the success count
-        successful_mutations = 0
-
-    cost.append(best_value)
-
-# Result
-print("Final solution:", x0)
-print("Function value:", best_value)
-print("Generations:", generation)
-print("Cost: ", cost)
+# # Result
+# print("Final solution:", x0)
+# print("Function value:", best_value)
+# print("Generations:", generation)
+# print("Cost: ", cost)
