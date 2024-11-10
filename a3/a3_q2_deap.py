@@ -20,7 +20,7 @@ toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1.0/1200.0, indpb=1.0)
 n = 10 # using lower case bec deap already uses "N", causes runtime error
 X_MIN, X_MAX = -5.12, 5.12
 sigma = 1.0 / 1200.0 
-C = 1.0
+C = 0.6
 G = 20  
 MAX_GENERATIONS = 500  
 NUM_SIMULATIONS = 50  
@@ -75,5 +75,5 @@ generations = list(range(len(avg_cost)))
 plt.plot(generations, avg_cost)
 plt.xlabel('Generation')
 plt.ylabel('Average Cost')
-plt.title("Average Cost vs Generation Number over 50 Simulations")
+plt.title("Average Cost vs Generation Number over 50 Simulations using DEAP")
 plt.show()
