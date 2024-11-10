@@ -13,14 +13,14 @@ creator.create("Individual", list, fitness=creator.FitnessMin)
 # init parameters
 toolbox = base.Toolbox()
 toolbox.register("attr_float", np.random.uniform, -5.12, 5.12)  # Initialize within bounds
-toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_float, N=10)
+toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_float, n=10)
 toolbox.register("evaluate", sphere_function)
 toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1.0/1200.0, indpb=1.0)
 
-N = 10 
+n = 10 # using lower case bec deap already uses "N", causes runtime error
 X_MIN, X_MAX = -5.12, 5.12
 sigma = 1.0 / 1200.0 
-C = 0.6  
+C = 1.0
 G = 20  
 MAX_GENERATIONS = 500  
 NUM_SIMULATIONS = 50  
@@ -44,7 +44,7 @@ for simulation in range(NUM_SIMULATIONS):
         del mutant.fitness.values  
 
         # assert bounds
-        for i in range(N):
+        for i in range(n):
             mutant[i] = np.clip(mutant[i], X_MIN, X_MAX)
 
         mutant.fitness.values = toolbox.evaluate(mutant)
