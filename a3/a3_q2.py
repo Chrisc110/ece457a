@@ -12,16 +12,16 @@ sigma = 1.0/1200.0
 C = 0.6
 G = 20
 MAX_GENERATIONS = 500
-NUM_SIMULATIONS = 50
+NUM_SIMULATIONS = 1
 
-# inital value/guess
-x0 = np.random.uniform(X_MIN, X_MAX, N)
-best_cost = sphere_function(x0)
-successful_mutations = 0
 cost = [[] for x in range(MAX_GENERATIONS)]
 
 # run 50 simulations
 for simulation in range(NUM_SIMULATIONS):
+    # inital value/guess
+    x0 = np.random.uniform(X_MIN, X_MAX, N)
+    best_cost = sphere_function(x0)
+    successful_mutations = 0
     #iteration through generations
     for generation in range(MAX_GENERATIONS):
 
