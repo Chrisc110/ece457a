@@ -10,12 +10,13 @@ x_min, x_max = -5.12, 5.12  # Boundaries of the search space
 sigma = 1.0/1200.0  # Initial mutation variance
 c = 0.817  # Control parameter for adaptive mutation
 G = 20  # Window of generations for tracking success
-max_generations = 1000  # Termination after a set number of generations
+max_generations = 500  # Termination after a set number of generations
 
 # Initialize
 x0 = np.random.uniform(x_min, x_max, n)
 best_value = sphere_function(x0)
 successful_mutations = 0
+cost = []
 
 # Evolution Strategy Loop
 for generation in range(max_generations):
@@ -45,7 +46,10 @@ for generation in range(max_generations):
         # Reset the success count
         successful_mutations = 0
 
+    cost.append(best_value)
+
 # Result
 print("Final solution:", x0)
 print("Function value:", best_value)
 print("Generations:", generation)
+print("Cost: ", cost)
